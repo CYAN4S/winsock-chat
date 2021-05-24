@@ -209,12 +209,11 @@ unsigned WINAPI HandleClnt(void* arg)
                 string name = cli.second;
 
                 sockaddr_in sa;
-                int namelen;
-                getsockname(cs, (sockaddr*)&sa, &namelen);
+                int namelen = sizeof(sa);
+                getpeername(cs, (sockaddr*)&sa, &namelen);
+                string ipAddr = inet_ntoa(sa.sin_addr);
 
-                string ip = inet_ntoa(sa.sin_addr);
-
-                list += (ip + "\t" + name + "\n");
+                list += (ipAddr + "\t" + name + "\n");
             }
 
             ReleaseMutex(hMutex);

@@ -69,6 +69,7 @@ int main(int argc, char* argv[])
         << "/quit\t\t\t채팅 프로그램을 종료합니다.\n"
         << "/list\t\t\t접속자 명단을 보여줍니다.\n"
         << "/to [NAME] [MSG]\t특정 사람에게만 메시지를 전송합니다.\n"
+        << "/to [NAME] [FILE]\t특정 사람에게만 메시지를 전송합니다.\n"
         << "\n";
 
     hSndThread = (HANDLE)_beginthreadex(NULL, 0, SendMsg, (void*)&hSock, 0, NULL);
@@ -151,6 +152,58 @@ unsigned WINAPI SendMsg(void* arg) // send thread main
             sendMessage += words.back();
 
             message = "/to " + targetClient + " " + sendMessage;
+        }
+        else if (setting == "/fileto")
+        {
+            auto words = split(message, " ");
+
+            string targetClient = "";
+            size_t targetNameI = -1;
+            string path = "";
+
+            for (size_t i = 1; i < words.size(); i++)
+            {
+                if (words[i] == "")
+                    continue;
+                targetClient = words[i];
+                targetNameI = i;
+                break;
+            }
+
+            if (targetNameI == -1)
+            {
+                cout << "상대를 지정해 주십시오.\n";
+                continue;
+            }
+
+            if (targetNameI == words.size() - 1)
+            {
+                cout << "파일 경로를 입력해 주십시오.\n";
+                continue;
+            }
+
+            for (size_t i = targetNameI + 1; i < words.size() - 1; i++)
+            {
+                path += (words[i] + " ");
+            }
+            path += words.back();
+
+            message = "/fileto " + targetClient + " " + path;
+            cout << message << "\n";
+
+            FILE* fp;
+            auto err = fopen_s(&fp, path.c_str(), "rb");
+            if (err != 0) 
+            {
+                cout << "파일이 존재하지 않거나, 접근 권한이 없습니다.\n";
+                continue;
+            }
+            if (fp)
+            {
+                err = fclose(fp);
+            }
+
+            continue;
         }
         else // 전체 메시지
         {
