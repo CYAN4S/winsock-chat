@@ -12,10 +12,9 @@ using namespace std;
 unsigned WINAPI SendMsg(void* arg);
 unsigned WINAPI RecvMsg(void* arg);
 void ErrorHandling(const char* msg);
-vector<string> split(string s, string divid);
+vector<string> split(string s, string div);
 
 char name[100] = "[DEFAULT]";
-char msg[BUF_SIZE];
 
 string ltrim(string s, const char* t = " \t\n\r\f\v")
 {
@@ -69,7 +68,7 @@ int main(int argc, char* argv[])
         << "/quit\t\t\t채팅 프로그램을 종료합니다.\n"
         << "/list\t\t\t접속자 명단을 보여줍니다.\n"
         << "/to [NAME] [MSG]\t특정 사람에게만 메시지를 전송합니다.\n"
-        << "/to [NAME] [FILE]\t특정 사람에게만 메시지를 전송합니다.\n"
+        //<< "/to [NAME] [FILE]\t특정 사람에게만 파일을 전송합니다.\n"
         << "\n";
 
     hSndThread = (HANDLE)_beginthreadex(NULL, 0, SendMsg, (void*)&hSock, 0, NULL);
@@ -153,7 +152,7 @@ unsigned WINAPI SendMsg(void* arg) // send thread main
 
             message = "/to " + targetClient + " " + sendMessage;
         }
-        else if (setting == "/fileto")
+        /*else if (setting == "/fileto")
         {
             auto words = split(message, " ");
 
@@ -204,7 +203,7 @@ unsigned WINAPI SendMsg(void* arg) // send thread main
             }
 
             continue;
-        }
+        }*/
         else // 전체 메시지
         {
             message = "/send " + message;
@@ -246,16 +245,16 @@ void ErrorHandling(const char* msg)
     exit(1);
 }
 
-vector<string> split(string s, string divid)
+vector<string> split(string s, string div)
 {
     vector<string> v;
     int start = 0;
-    int d = s.find(divid);
+    int d = s.find(div);
     while (d != -1)
     {
         v.push_back(s.substr(start, d - start));
         start = d + 1;
-        d = s.find(divid, start);
+        d = s.find(div, start);
     }
     v.push_back(s.substr(start, d - start));
 

@@ -9,11 +9,11 @@
 using namespace std;
 
 #define BUF_SIZE 1000
-#define MAX_CLNT 256
+// #define MAX_CLNT 256
 
 unsigned WINAPI HandleClnt(void* arg);
 void ErrorHandling(const char* msg);
-vector<string> split(string s, string divid);
+vector<string> split(string s, string div);
 void SendMsg(string msg);
 void SendMsgTo(string msg, SOCKET socket);
 
@@ -184,17 +184,19 @@ unsigned WINAPI HandleClnt(void* arg)
                 continue;
             }
 
-            string sendMessage;
+            string message;
             for (size_t i = 2; i < words.size() - 1; i++)
             {
-                sendMessage += (words[i] + " ");
+                message += (words[i] + " ");
             }
-            sendMessage += words.back();
+            message += words.back();
 
             cout << "<" + name + "> " + recvStr + "\n";
 
-            SendMsgTo("<" + name + "->" + words[1] + "> " + sendMessage, target);
-            SendMsgTo("<" + name + "->" + words[1] + "> " + sendMessage, hClntSock);
+            message = "<" + name + "->" + words[1] + "> " + message;
+
+            SendMsgTo(message, target);
+            SendMsgTo(message, hClntSock);
         }
         else if (cmd == "/list")
         {
@@ -259,14 +261,10 @@ void SendMsg(string msg)
 
 void SendMsgTo(string msg, SOCKET socket)
 {
-    WaitForSingleObject(hMutex, INFINITE);
-
     char arr[BUF_SIZE];
     strcpy_s(arr, msg.c_str());
 
     send(socket, arr, msg.length(), 0);
-
-    ReleaseMutex(hMutex);
 }
 
 void ErrorHandling(const char* msg)
@@ -276,16 +274,16 @@ void ErrorHandling(const char* msg)
     exit(1);
 }
 
-vector<string> split(string s, string divid) 
+vector<string> split(string s, string div) 
 {
     vector<string> v;
     int start = 0;
-    int d = s.find(divid);
+    int d = s.find(div);
     while (d != -1) 
     {
         v.push_back(s.substr(start, d - start));
         start = d + 1;
-        d = s.find(divid, start);
+        d = s.find(div, start);
     }
     v.push_back(s.substr(start, d - start));
 
